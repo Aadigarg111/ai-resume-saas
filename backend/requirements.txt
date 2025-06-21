@@ -87,5 +87,5 @@ zopfli==0.2.3.post1
 flask-cors==4.0.0
 
 
-flask-jwt-extended==4.4.0
+flask-jwt-extended==4.7.1
 
