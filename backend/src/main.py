@@ -24,7 +24,7 @@ app.register_blueprint(resume_bp, url_prefix="/api/resume")
 
 # Serve React App
 @app.route("/") # type: ignore
-@app.route("/<path:path>") # type: ignore
+@app.route("/<path:path>", defaults={"path": ""}) # type: ignore
 def serve(path):
     static_folder_path = os.path.join(os.path.dirname(__file__), "../../frontend/dist")
     if path != "" and os.path.exists(os.path.join(static_folder_path, path)):
