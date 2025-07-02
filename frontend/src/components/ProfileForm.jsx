@@ -1,30 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { 
-  Sparkles, 
-  ArrowLeft, 
-  Github, 
-  Linkedin, 
-  Link as LinkIcon, 
-  Plus, 
-  X, 
-  Save, 
+import {
+  Sparkles,
+  ArrowLeft,
+  Github,
+  Linkedin,
+  Link as LinkIcon,
+  Plus,
+  X,
+  Save,
   Loader2,
   User,
   Briefcase,
   GraduationCap,
-  Code
+  Code,
+  Home
 } from 'lucide-react';
 
 const ProfileForm = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,7 +45,7 @@ const ProfileForm = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get('/profile');
+      const response = await axios.get('/api/profile');
       const profile = response.data.profile;
       
       setFormData({
@@ -150,7 +149,7 @@ const ProfileForm = () => {
         education: formData.education.filter(edu => edu.institution.trim() || edu.degree.trim())
       };
 
-      await axios.post('/profile', cleanData);
+      await axios.post('/api/profile', cleanData);
       setSuccess('Profile saved successfully!');
       
       setTimeout(() => {
@@ -194,9 +193,14 @@ const ProfileForm = () => {
                 <span className="text-xl font-bold gradient-text">Profile Setup</span>
               </div>
             </div>
-            <span className="text-sm text-muted-foreground">
-              {user?.username}
-            </span>
+            <div className="flex items-center space-x-4">
+              <Link to="/">
+                <Button variant="ghost" className="text-foreground hover:text-primary">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
@@ -434,7 +438,7 @@ const ProfileForm = () => {
                       className="bg-input border-border focus:border-primary"
                     />
                     <Input
-                      placeholder="Degree/Program"
+                      placeholder="Degree"
                       value={edu.degree}
                       onChange={(e) => handleObjectArrayChange('education', index, 'degree', e.target.value)}
                       className="bg-input border-border focus:border-primary"
@@ -442,7 +446,7 @@ const ProfileForm = () => {
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <Input
-                      placeholder="Year (e.g., 2020-2024)"
+                      placeholder="Year (e.g., 2020)"
                       value={edu.year}
                       onChange={(e) => handleObjectArrayChange('education', index, 'year', e.target.value)}
                       className="bg-input border-border focus:border-primary"
@@ -480,7 +484,7 @@ const ProfileForm = () => {
             <Button
               type="submit"
               disabled={saving}
-              className="gradient-primary hover-lift glow-primary"
+              className="gradient-primary hover-lift"
             >
               {saving ? (
                 <>

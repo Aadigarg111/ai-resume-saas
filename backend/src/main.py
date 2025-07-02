@@ -7,7 +7,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from src.database.config import mongo
-from src.routes.auth import auth_bp
 from src.routes.profile import profile_bp
 from src.routes.resume import resume_bp
 
@@ -19,7 +18,6 @@ app.config['MONGO_URI'] = os.environ.get('MONGO_URI')
 mongo.init_app(app)
 
 # Register blueprints
-app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(profile_bp, url_prefix='/api/profile')
 app.register_blueprint(resume_bp, url_prefix='/api/resume')
 

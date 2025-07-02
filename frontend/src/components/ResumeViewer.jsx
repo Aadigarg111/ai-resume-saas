@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -20,7 +20,8 @@ import {
   Star,
   TrendingUp,
   Award,
-  Target
+  Target,
+  Home
 } from 'lucide-react';
 
 const ResumeViewer = () => {
@@ -36,7 +37,7 @@ const ResumeViewer = () => {
 
   const fetchResume = async () => {
     try {
-      const response = await axios.get(`/resume/${id}`);
+      const response = await axios.get(`/api/resume/${id}`);
       setResume(response.data.resume);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load resume');
@@ -47,19 +48,21 @@ const ResumeViewer = () => {
 
   const handleDownload = async () => {
     try {
-      const response = await axios.get(`/resume/${id}/download`, {
+      const response = await axios.get(`/api/resume/${id}/download`, {
         responseType: 'blob'
       });
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `resume_${id}.pdf`);
+      link.download = `resume_${id.slice(-6)}.pdf`;
       document.body.appendChild(link);
       link.click();
-      link.remove();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
-      setError('Failed to download resume');
+      console.error('Download failed:', err);
     }
   };
 
@@ -72,10 +75,10 @@ const ResumeViewer = () => {
   };
 
   const getSkillLevel = (score) => {
-    if (score >= 80) return { level: 'Expert', color: 'text-green-500' };
-    if (score >= 60) return { level: 'Advanced', color: 'text-blue-500' };
-    if (score >= 40) return { level: 'Intermediate', color: 'text-yellow-500' };
-    return { level: 'Beginner', color: 'text-red-500' };
+    if (score >= 90) return { level: 'Expert', color: 'text-green-500' };
+    if (score >= 75) return { level: 'Advanced', color: 'text-blue-500' };
+    if (score >= 60) return { level: 'Intermediate', color: 'text-yellow-500' };
+    return { level: 'Beginner', color: 'text-gray-500' };
   };
 
   if (loading) {
@@ -92,16 +95,19 @@ const ResumeViewer = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="p-6 text-center">
-            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Resume Not Found</h3>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={() => navigate('/dashboard')}>
-              Back to Dashboard
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="text-center">
+          <Alert variant="destructive" className="max-w-md">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          <Button 
+            onClick={() => navigate('/dashboard')} 
+            className="mt-4"
+            variant="outline"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </div>
       </div>
     );
   }
@@ -126,27 +132,43 @@ const ResumeViewer = () => {
                 <span className="text-xl font-bold gradient-text">Resume Viewer</span>
               </div>
             </div>
-            <Button onClick={handleDownload} className="gradient-primary hover-lift">
-              <Download className="mr-2 h-4 w-4" />
-              Download PDF
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Link to="/">
+                <Button variant="ghost" className="text-foreground hover:text-primary">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
 
       <div className="container mx-auto px-6 py-8 max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            Resume <span className="gradient-text">#{resume.id.slice(-6)}</span>
-          </h1>
-          <p className="text-muted-foreground">
-            Generated on {formatDate(resume.created_at)}
-          </p>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">
+              Resume <span className="gradient-text">#{resume.id.slice(-6)}</span>
+            </h1>
+            <p className="text-muted-foreground">
+              Generated on {formatDate(resume.created_at)}
+            </p>
+          </div>
+          <div className="flex space-x-4">
+            {resume.pdf_path && (
+              <Button onClick={handleDownload} className="gradient-primary hover-lift">
+                <Download className="mr-2 h-4 w-4" />
+                Download PDF
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Resume Content */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Resume HTML Content */}
             <Card className="glass-effect border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -154,254 +176,137 @@ const ResumeViewer = () => {
                   Resume Content
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Personal Info */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold border-b border-border pb-2">
-                    Personal Information
-                  </h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{resume.resume_data.personal_info?.name}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span>{resume.resume_data.personal_info?.email}</span>
-                    </div>
-                    {resume.resume_data.personal_info?.github && (
-                      <div className="flex items-center space-x-2">
-                        <Github className="h-4 w-4 text-muted-foreground" />
-                        <a 
-                          href={resume.resume_data.personal_info.github} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline flex items-center"
-                        >
-                          GitHub Profile
-                          <ExternalLink className="ml-1 h-3 w-3" />
-                        </a>
-                      </div>
-                    )}
-                    {resume.resume_data.personal_info?.linkedin && (
-                      <div className="flex items-center space-x-2">
-                        <Linkedin className="h-4 w-4 text-blue-500" />
-                        <a 
-                          href={resume.resume_data.personal_info.linkedin} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline flex items-center"
-                        >
-                          LinkedIn Profile
-                          <ExternalLink className="ml-1 h-3 w-3" />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Skills */}
-                {resume.resume_data.skills?.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold border-b border-border pb-2">
-                      Skills
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {resume.resume_data.skills.map((skill, index) => (
-                        <span 
-                          key={index}
-                          className="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Experience */}
-                {resume.resume_data.experience?.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold border-b border-border pb-2">
-                      Work Experience
-                    </h3>
-                    <div className="space-y-4">
-                      {resume.resume_data.experience.map((exp, index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="font-semibold">{exp.position}</h4>
-                              <p className="text-primary">{exp.company}</p>
-                            </div>
-                            <span className="text-sm text-muted-foreground">{exp.duration}</span>
-                          </div>
-                          {exp.description && (
-                            <p className="text-muted-foreground">{exp.description}</p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Education */}
-                {resume.resume_data.education?.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold border-b border-border pb-2">
-                      Education
-                    </h3>
-                    <div className="space-y-4">
-                      {resume.resume_data.education.map((edu, index) => (
-                        <div key={index} className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-semibold">{edu.degree}</h4>
-                            <p className="text-primary">{edu.institution}</p>
-                            {edu.gpa && <p className="text-sm text-muted-foreground">GPA: {edu.gpa}</p>}
-                          </div>
-                          <span className="text-sm text-muted-foreground">{edu.year}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Projects */}
-                {resume.resume_data.projects?.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold border-b border-border pb-2">
-                      Projects
-                    </h3>
-                    <div className="space-y-2">
-                      {resume.resume_data.projects.map((project, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                          <a 
-                            href={project.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            Project {index + 1}
-                          </a>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              <CardContent>
+                <div 
+                  className="prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: resume.content }}
+                />
               </CardContent>
             </Card>
           </div>
 
           {/* Expertise Report */}
-          <div className="lg:col-span-1">
+          <div className="space-y-6">
+            {resume.expertise_report && (
+              <Card className="glass-effect border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Brain className="mr-2 h-5 w-5" />
+                    AI Expertise Report
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Overall Score */}
+                  {resume.expertise_report.overall_score && (
+                    <div className="text-center p-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg">
+                      <div className="text-3xl font-bold gradient-text mb-2">
+                        {resume.expertise_report.overall_score}/100
+                      </div>
+                      <p className="text-sm text-muted-foreground">Overall Expertise Score</p>
+                    </div>
+                  )}
+
+                  {/* Skills Analysis */}
+                  {resume.expertise_report.skills && (
+                    <div>
+                      <h4 className="font-semibold mb-4 flex items-center">
+                        <Target className="mr-2 h-4 w-4" />
+                        Skills Analysis
+                      </h4>
+                      <div className="space-y-3">
+                        {resume.expertise_report.skills.map((skill, index) => {
+                          const skillInfo = getSkillLevel(skill.score);
+                          return (
+                            <div key={index} className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium">{skill.name}</span>
+                                <span className={`text-xs ${skillInfo.color}`}>
+                                  {skillInfo.level}
+                                </span>
+                              </div>
+                              <Progress value={skill.score} className="h-2" />
+                              <p className="text-xs text-muted-foreground">
+                                {skill.description}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Strengths */}
+                  {resume.expertise_report.strengths && (
+                    <div>
+                      <h4 className="font-semibold mb-3 flex items-center">
+                        <Award className="mr-2 h-4 w-4 text-green-500" />
+                        Key Strengths
+                      </h4>
+                      <ul className="space-y-2">
+                        {resume.expertise_report.strengths.map((strength, index) => (
+                          <li key={index} className="flex items-start">
+                            <Star className="h-3 w-3 text-yellow-500 mt-1 mr-2 flex-shrink-0" />
+                            <span className="text-sm">{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Recommendations */}
+                  {resume.expertise_report.recommendations && (
+                    <div>
+                      <h4 className="font-semibold mb-3 flex items-center">
+                        <TrendingUp className="mr-2 h-4 w-4 text-blue-500" />
+                        Recommendations
+                      </h4>
+                      <ul className="space-y-2">
+                        {resume.expertise_report.recommendations.map((rec, index) => (
+                          <li key={index} className="flex items-start">
+                            <Target className="h-3 w-3 text-blue-500 mt-1 mr-2 flex-shrink-0" />
+                            <span className="text-sm">{rec}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Summary */}
+                  {resume.expertise_report.summary && (
+                    <div className="p-4 bg-card/50 rounded-lg border border-border">
+                      <h4 className="font-semibold mb-2">AI Summary</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {resume.expertise_report.summary}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Resume Info */}
             <Card className="glass-effect border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Brain className="mr-2 h-5 w-5" />
-                  AI Expertise Report
+                  <User className="mr-2 h-5 w-5" />
+                  Resume Information
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Overall Score */}
-                <div className="text-center space-y-4">
-                  <div className="gradient-primary w-20 h-20 rounded-full flex items-center justify-center mx-auto">
-                    <span className="text-2xl font-bold text-white">
-                      {resume.expertise_report.overall_score || 0}
-                    </span>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Resume ID</span>
+                    <span className="text-sm font-mono">#{resume.id.slice(-6)}</span>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold">Overall Score</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Based on AI analysis of your profile
-                    </p>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Created</span>
+                    <span className="text-sm">{formatDate(resume.created_at)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Status</span>
+                    <span className="text-sm text-green-500">Generated</span>
                   </div>
                 </div>
-
-                {/* Skill Assessments */}
-                {Object.keys(resume.expertise_report.skill_assessments || {}).length > 0 && (
-                  <div className="space-y-4">
-                    <h4 className="font-semibold flex items-center">
-                      <Star className="mr-2 h-4 w-4" />
-                      Skill Assessments
-                    </h4>
-                    <div className="space-y-3">
-                      {Object.entries(resume.expertise_report.skill_assessments).map(([skill, score]) => {
-                        const skillInfo = getSkillLevel(score);
-                        return (
-                          <div key={skill} className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium">{skill}</span>
-                              <span className={`text-xs ${skillInfo.color}`}>
-                                {skillInfo.level}
-                              </span>
-                            </div>
-                            <Progress value={score} className="h-2" />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Strengths */}
-                {resume.expertise_report.strengths?.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-semibold flex items-center">
-                      <TrendingUp className="mr-2 h-4 w-4 text-green-500" />
-                      Strengths
-                    </h4>
-                    <ul className="space-y-2">
-                      {resume.expertise_report.strengths.map((strength, index) => (
-                        <li key={index} className="text-sm text-muted-foreground flex items-start">
-                          <Award className="mr-2 h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
-                          {strength}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Areas for Improvement */}
-                {resume.expertise_report.areas_for_improvement?.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-semibold flex items-center">
-                      <Target className="mr-2 h-4 w-4 text-yellow-500" />
-                      Areas for Improvement
-                    </h4>
-                    <ul className="space-y-2">
-                      {resume.expertise_report.areas_for_improvement.map((area, index) => (
-                        <li key={index} className="text-sm text-muted-foreground flex items-start">
-                          <Target className="mr-2 h-3 w-3 text-yellow-500 mt-0.5 flex-shrink-0" />
-                          {area}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Recommendations */}
-                {resume.expertise_report.recommendations?.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-semibold">Recommendations</h4>
-                    <ul className="space-y-2">
-                      {resume.expertise_report.recommendations.map((rec, index) => (
-                        <li key={index} className="text-sm text-muted-foreground">
-                          • {rec}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Empty State */}
-                {Object.keys(resume.expertise_report).length === 0 && (
-                  <div className="text-center py-8">
-                    <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                      AI analysis will be available soon
-                    </p>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>

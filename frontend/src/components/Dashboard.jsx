@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { 
   Sparkles, 
@@ -11,7 +10,6 @@ import {
   FileText, 
   Plus, 
   Settings, 
-  LogOut, 
   Github, 
   Linkedin, 
   ExternalLink,
@@ -19,11 +17,11 @@ import {
   Eye,
   Loader2,
   Brain,
-  Calendar
+  Calendar,
+  Home
 } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +39,7 @@ const Dashboard = () => {
       
       // Fetch profile
       try {
-        const profileResponse = await axios.get('/profile');
+        const profileResponse = await axios.get('/api/profile');
         setProfile(profileResponse.data.profile);
       } catch (err) {
         if (err.response?.status !== 404) {
@@ -51,7 +49,7 @@ const Dashboard = () => {
 
       // Fetch resumes
       try {
-        const resumesResponse = await axios.get('/resume');
+        const resumesResponse = await axios.get('/api/resume');
         setResumes(resumesResponse.data.resumes);
       } catch (err) {
         console.error('Error fetching resumes:', err);
@@ -73,7 +71,7 @@ const Dashboard = () => {
       setGenerating(true);
       setError('');
       
-      const response = await axios.post('/resume/generate');
+      const response = await axios.post('/api/resume/generate');
       
       // Refresh resumes list
       await fetchData();
@@ -84,11 +82,6 @@ const Dashboard = () => {
     } finally {
       setGenerating(false);
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
   };
 
   const formatDate = (dateString) => {
@@ -121,13 +114,12 @@ const Dashboard = () => {
               <span className="text-2xl font-bold gradient-text">ResumeAI</span>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">
-                Welcome, {user?.username}
-              </span>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
+              <Link to="/">
+                <Button variant="ghost" className="text-foreground hover:text-primary">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -143,7 +135,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
-            Welcome back, <span className="gradient-text">{user?.username}</span>!
+            Welcome to <span className="gradient-text">ResumeAI</span>!
           </h1>
           <p className="text-muted-foreground text-lg">
             Manage your profile and generate AI-powered resumes

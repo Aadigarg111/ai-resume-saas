@@ -68,12 +68,7 @@ const LandingPage = () => {
               <span className="text-2xl font-bold gradient-text">ResumeAI</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/login">
-                <Button variant="ghost" className="text-foreground hover:text-primary">
-                  Sign In
-                </Button>
-              </Link>
-              <Link to="/register">
+              <Link to="/dashboard">
                 <Button className="gradient-primary hover-lift">
                   Get Started
                 </Button>
@@ -98,7 +93,7 @@ const LandingPage = () => {
             and generates a professional resume with detailed expertise insights.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link to="/register">
+            <Link to="/dashboard">
               <Button size="lg" className="gradient-primary hover-lift glow-primary text-lg px-8 py-4">
                 <Rocket className="mr-2 h-5 w-5" />
                 Start Building Now
@@ -202,7 +197,7 @@ const LandingPage = () => {
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Join thousands of developers who have already created their perfect resume with AI
           </p>
-          <Link to="/register">
+          <Link to="/dashboard">
             <Button size="lg" className="gradient-primary hover-lift glow-primary text-lg px-12 py-4">
               <Star className="mr-2 h-5 w-5" />
               Get Started for Free
