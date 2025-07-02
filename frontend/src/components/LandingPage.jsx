@@ -214,7 +214,7 @@ const LandingPage = () => {
             <span className="text-xl font-bold gradient-text">ResumeAI</span>
           </div>
           <p className="text-muted-foreground">
-            © 2024 ResumeAI. All rights reserved. Built with AI for the future of work.
+            © 2025 ResumeAI. All rights reserved. Built with AI for the future of work.
           </p>
         </div>
       </footer>
