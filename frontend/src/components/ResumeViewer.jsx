@@ -24,6 +24,9 @@ import {
   Home
 } from 'lucide-react';
 
+// Configure axios base URL
+axios.defaults.baseURL = 'https://ai-resume-saas.onrender.com';
+
 const ResumeViewer = () => {
   const { id } = useParams();
   const navigate = useNavigate();

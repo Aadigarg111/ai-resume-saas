@@ -21,6 +21,9 @@ import {
   Home
 } from 'lucide-react';
 
+// Configure axios base URL
+axios.defaults.baseURL = 'https://ai-resume-saas.onrender.com';
+
 const Dashboard = () => {
   const [profile, setProfile] = useState(null);
   const [resumes, setResumes] = useState([]);

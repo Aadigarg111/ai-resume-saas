@@ -23,6 +23,9 @@ import {
   Home
 } from 'lucide-react';
 
+// Configure axios base URL
+axios.defaults.baseURL = 'https://ai-resume-saas.onrender.com';
+
 const ProfileForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
