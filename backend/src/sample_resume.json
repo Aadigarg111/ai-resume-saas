@@ -1,0 +1,42 @@
+{
+  "_id": {
+    "$oid": "66861c21e0e0e0e0e0e0e0e0"
+  },
+  "user_id": "sample_user",
+  "content": "<h1>John Doe</h1><p>Software Engineer</p><p>Email: john.doe@example.com | Phone: (123) 456-7890 | LinkedIn: linkedin.com/in/johndoe | GitHub: github.com/johndoe</p><h2>Summary</h2><p>Highly motivated software engineer with 5+ years of experience in developing scalable web applications using Python and JavaScript frameworks. Passionate about clean code, test-driven development, and continuous integration.</p><h2>Experience</h2><h3>Senior Software Engineer | Tech Solutions Inc. | Jan 2022 - Present</h3><ul><li>Led the development of a new microservices architecture, improving system scalability by 40%.</li><li>Mentored junior developers and conducted code reviews, ensuring high code quality.</li></ul><h3>Software Engineer | Innovate Corp. | Jun 2019 - Dec 2021</h3><ul><li>Developed and maintained RESTful APIs using Flask and Django.</li><li>Implemented front-end features using React and Redux.</li></ul><h2>Education</h2><h3>M.S. Computer Science | University of Tech | 2019</h3><h3>B.S. Computer Science | State University | 2017</h3><h2>Skills</h2><p>Python, JavaScript, React, Flask, Django, MongoDB, SQL, Docker, AWS, Git, Agile</p>",
+  "expertise_report": {
+    "overall_score": 85,
+    "skills": [
+      {
+        "name": "Python",
+        "score": 90,
+        "description": "Expert in Python development, including web frameworks and data processing."
+      },
+      {
+        "name": "JavaScript",
+        "score": 80,
+        "description": "Proficient in JavaScript, particularly with React and modern ES6+ features."
+      },
+      {
+        "name": "MongoDB",
+        "score": 75,
+        "description": "Strong understanding of NoSQL databases and MongoDB operations."
+      }
+    ],
+    "strengths": [
+      "Strong problem-solving abilities",
+      "Excellent team collaboration",
+      "Adept at learning new technologies"
+    ],
+    "recommendations": [
+      "Explore advanced cloud deployment strategies (e.g., Kubernetes)",
+      "Contribute to open-source projects to showcase leadership"
+    ],
+    "summary": "John demonstrates strong capabilities in backend and frontend development, with a solid foundation in modern web technologies. His experience in leading projects and mentoring junior developers highlights his leadership potential."
+  },
+  "created_at": {
+    "$date": "2025-07-03T10:00:00Z"
+  },
+  "pdf_path": "/path/to/sample_resume.pdf"
+}
+

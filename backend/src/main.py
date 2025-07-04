@@ -9,6 +9,7 @@ from flask_cors import CORS
 from src.database.config import mongo
 from src.routes.profile import profile_bp
 from src.routes.resume import resume_bp
+from src.routes.sample_resume import sample_resume_bp
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -20,6 +21,7 @@ mongo.init_app(app)
 # Register blueprints
 app.register_blueprint(profile_bp, url_prefix='/api/profile')
 app.register_blueprint(resume_bp, url_prefix='/api/resume')
+app.register_blueprint(sample_resume_bp, url_prefix='/api')
 
 # Serve React App
 static_folder_path = os.path.join(os.path.dirname(__file__), '../../frontend/dist')
